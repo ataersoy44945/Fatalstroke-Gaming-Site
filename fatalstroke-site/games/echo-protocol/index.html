@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07070d" />
+  <title>ECHO PROTOCOL — FATALSTROKE</title>
+  <meta name="description" content="Geri sarma ve yankı klonlarıyla çözülen neon puzzle-platform — FATALSTROKE." />
+
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%2307070d'/><circle cx='24' cy='32' r='11' fill='none' stroke='%2322d3ee' stroke-width='3'/><circle cx='40' cy='32' r='11' fill='none' stroke='%23b537f2' stroke-width='3' opacity='0.6'/></svg>" />
+
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body>
+
+  <main id="stage" aria-label="Echo Protocol oyun alanı">
+
+    <canvas id="game" width="800" height="500" aria-hidden="true"></canvas>
+
+    <!-- ============== TITLE ============== -->
+    <section id="screen-title" class="overlay">
+      <div class="overlay-inner">
+        <p class="eyebrow">FATALSTROKE PRESENTS</p>
+        <h1 class="game-title">
+          <span class="game-title-line">ECHO</span>
+          <span class="game-title-line game-title-line--accent">PROTOCOL</span>
+        </h1>
+        <p class="game-tagline">Geri Sar · Klonlarınla Çöz</p>
+
+        <div class="actions">
+          <button type="button" id="btn-start" class="btn btn-primary">▶ Başla</button>
+        </div>
+
+        <ul class="howto" aria-label="Nasıl oynanır">
+          <li><strong>Hareket:</strong> ← → / A D · Zıpla: Boşluk / W / ↑</li>
+          <li><strong>Geri Sar:</strong> <em>R</em> — hareketlerin yankı klon olarak tekrar oynanır.</li>
+          <li><strong>Amaç:</strong> Yeşil portala ulaş. Butonlar üstüne çıkınca basılır, kapılar açılır.</li>
+          <li><strong>İpucu:</strong> Bir klonun butonu basılı tutsun, sen geçeceksin.</li>
+          <li><strong>Sıfırla:</strong> Bölümü temizlemek için P → ↻ veya R'yi 2 saniye basılı tut.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============== PAUSE ============== -->
+    <section id="screen-pause" class="overlay overlay--dim" hidden>
+      <div class="overlay-inner">
+        <h2 class="screen-title">DURAKLATILDI</h2>
+        <div class="actions">
+          <button type="button" id="btn-resume" class="btn btn-primary">▶ Devam</button>
+          <button type="button" id="btn-pause-restart" class="btn btn-ghost">↻ Bölümü Sıfırla</button>
+          <button type="button" id="btn-pause-quit" class="btn btn-ghost">Ana Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== LEVEL COMPLETE ============== -->
+    <section id="screen-level" class="overlay" hidden>
+      <div class="overlay-inner">
+        <p class="eyebrow eyebrow--win" id="level-eyebrow">// SECTOR CLEAR</p>
+        <h2 class="screen-title" id="level-title">BÖLÜM TAMAM</h2>
+        <div class="score-card">
+          <div class="score-row">
+            <span class="score-label">Süre</span>
+            <span class="score-value" id="level-time">0.0s</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Kullanılan Klon</span>
+            <span class="score-value" id="level-clones">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">En İyi Süre</span>
+            <span class="score-value score-value--soft" id="level-best">—</span>
+          </div>
+          <div id="level-newbest" class="newbest" hidden>★ Yeni rekor!</div>
+        </div>
+        <div class="actions actions--row">
+          <button type="button" id="btn-level-next"  class="btn btn-primary">▶ Sonraki</button>
+          <button type="button" id="btn-level-retry" class="btn btn-ghost">↻ Tekrar</button>
+          <button type="button" id="btn-level-quit"  class="btn btn-ghost">Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== ALL CLEAR ============== -->
+    <section id="screen-done" class="overlay" hidden>
+      <div class="overlay-inner">
+        <p class="eyebrow eyebrow--win">// PROTOCOL COMPLETE</p>
+        <h2 class="screen-title">TÜM PROTOKOL ÇÖZÜLDÜ</h2>
+        <p class="won-subtitle">Tüm bölümleri yankılarınla çözdün. Zincir kırıldı.</p>
+        <div class="actions actions--row">
+          <button type="button" id="btn-done-restart" class="btn btn-primary">↻ Baştan Başla</button>
+          <button type="button" id="btn-done-quit"    class="btn btn-ghost">Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== HUD ============== -->
+    <div id="hud-top" class="hud-top" hidden>
+      <div class="hud-stats">
+        <span class="stat" aria-label="Bölüm">
+          <span class="stat-icon" aria-hidden="true">◧</span>
+          <span class="stat-value">
+            <span id="stat-level">1</span><span class="stat-sub">/<span id="stat-level-max">1</span></span>
+          </span>
+        </span>
+        <span class="stat" aria-label="Klonlar">
+          <span class="stat-icon" aria-hidden="true">⟳</span>
+          <span class="stat-value">
+            <span id="stat-clones">0</span><span class="stat-sub">/<span id="stat-clones-max">0</span></span>
+          </span>
+        </span>
+        <span class="stat" aria-label="Döngü süresi">
+          <span class="stat-icon" aria-hidden="true">◷</span>
+          <span class="stat-value" id="stat-loop">0.0s</span>
+        </span>
+      </div>
+      <div class="hud-actions">
+        <button type="button" id="btn-mute" class="hud-btn" aria-label="Sesi aç/kapa" aria-pressed="false">
+          <span aria-hidden="true" data-on>♪</span>
+          <span aria-hidden="true" data-off hidden>✕</span>
+        </button>
+        <button type="button" id="btn-restart" class="hud-btn" aria-label="Bölümü sıfırla">↻</button>
+        <button type="button" id="btn-pause" class="hud-btn" aria-label="Duraklat">II</button>
+      </div>
+    </div>
+
+    <!-- ============== MOBILE CONTROLS ============== -->
+    <div id="mctrls" class="mctrls" hidden>
+      <div class="mctrls-side mctrls-side--left">
+        <button type="button" class="mbtn" id="mb-left"  aria-label="Sol">◀</button>
+        <button type="button" class="mbtn" id="mb-right" aria-label="Sağ">▶</button>
+      </div>
+      <div class="mctrls-side mctrls-side--right">
+        <button type="button" class="mbtn mbtn--rewind" id="mb-rewind" aria-label="Geri sar">↺</button>
+        <button type="button" class="mbtn mbtn--jump"   id="mb-jump"   aria-label="Zıpla">▲</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="game.js" defer></script>
+  <script>
+    (function() {
+      function hexToRgba(hex, a) {
+        hex = hex.replace('#','');
+        var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      }
+      function applyTheme(d) {
+        var s = document.documentElement.style;
+        if (d.accent)  { s.setProperty('--accent',  d.accent);  s.setProperty('--accent-soft',  hexToRgba(d.accent, 0.18)); }
+        if (d.accent2) { s.setProperty('--accent-2',d.accent2); s.setProperty('--accent-2-soft',hexToRgba(d.accent2, 0.18)); }
+      }
+      function applySettings(s) {
+        window.__fsSettings = s;
+        if (typeof s.mute === 'boolean') {
+          var btn = document.getElementById('btn-mute');
+          if (btn) {
+            var currently = btn.getAttribute('aria-pressed') === 'true';
+            if (s.mute !== currently) btn.click();
+          }
+        }
+        if (s.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        else document.documentElement.classList.remove('reduce-motion');
+      }
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'fs-theme')    applyTheme(e.data);
+        if (e.data.type === 'fs-settings') applySettings(e.data);
+      });
+      if (window.parent !== window) {
+        try { window.parent.postMessage({ type: 'fs-theme-request' }, '*'); } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+</html>

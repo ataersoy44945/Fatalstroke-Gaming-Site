@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07070d" />
+  <title>IRONCLAD ARENA — FATALSTROKE</title>
+  <meta name="description" content="Neon mekanik savaşçı düellosu — FATALSTROKE." />
+
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%2307070d'/><path d='M16 14 L32 22 L48 14 L48 36 L32 50 L16 36 Z' fill='none' stroke='%2322d3ee' stroke-width='3' stroke-linejoin='round'/><circle cx='32' cy='30' r='3' fill='%23b537f2'/></svg>" />
+
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body>
+
+  <main id="stage" aria-label="Ironclad Arena oyun alanı">
+
+    <canvas id="game" width="800" height="500" aria-hidden="true"></canvas>
+
+    <!-- ============== TITLE ============== -->
+    <section id="screen-title" class="overlay">
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow">FATALSTROKE PRESENTS</p>
+        <h1 class="game-title">
+          <span class="game-title-line">IRONCLAD</span>
+          <span class="game-title-line game-title-line--accent">ARENA</span>
+        </h1>
+        <p class="game-tagline">Neon Mekanik Düellosu</p>
+
+        <div class="rank-display">
+          <span class="rank-display-label">Mevcut Rank</span>
+          <strong class="rank-display-name" id="rank-name">—</strong>
+          <span class="rank-display-rating">Rating: <span id="rank-rating">0</span></span>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="btn-start" class="btn btn-primary">▶ Dövüş</button>
+        </div>
+
+        <ul class="howto" aria-label="Kontroller">
+          <li><strong>Hareket:</strong> A / D · Zıpla: W / ↑ / Boşluk</li>
+          <li><strong>Hafif vuruş:</strong> J — hızlı, az hasar</li>
+          <li><strong>Ağır vuruş:</strong> K — yavaş, çok hasar, blok kırar</li>
+          <li><strong>Blok:</strong> S — hafif vuruşu tamamen savar</li>
+          <li><strong>Havada vuruş:</strong> Zıplarken L/H — zıplama başına bir kez (dive)</li>
+          <li><strong>Kombo:</strong> Vuruş isabet ederse arkasından tuşa basınca zincir başlar. Her ardışık vuruşta hasar azalır (decay).</li>
+          <li><strong>Mobil:</strong> Sol/sağ + zıpla + L/H/Blok butonları</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============== CHARACTER SELECT ============== -->
+    <section id="screen-select" class="overlay" hidden>
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow">// SELECT FIGHTER</p>
+        <h2 class="screen-title">SAVAŞÇI SEÇ</h2>
+        <div id="char-cards" class="char-cards"></div>
+
+        <p class="eyebrow" style="margin-top:8px">// DIFFICULTY</p>
+        <div id="diff-row" class="diff-row">
+          <button type="button" class="diff-btn" data-diff="training">Antrenman</button>
+          <button type="button" class="diff-btn" data-diff="easy">Kolay</button>
+          <button type="button" class="diff-btn diff-btn--active" data-diff="medium">Orta</button>
+          <button type="button" class="diff-btn" data-diff="hard">Zor</button>
+        </div>
+
+        <div class="actions actions--row" style="margin-top:14px">
+          <button type="button" id="btn-fight" class="btn btn-primary" disabled>▶ Başla</button>
+          <button type="button" id="btn-select-back" class="btn btn-ghost">◀ Geri</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== PAUSE ============== -->
+    <section id="screen-pause" class="overlay overlay--dim" hidden>
+      <div class="overlay-inner">
+        <h2 class="screen-title">DURAKLATILDI</h2>
+        <div class="actions">
+          <button type="button" id="btn-resume" class="btn btn-primary">▶ Devam</button>
+          <button type="button" id="btn-pause-quit" class="btn btn-ghost">Ana Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== MATCH RESULT ============== -->
+    <section id="screen-result" class="overlay" hidden>
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow" id="result-eyebrow">// MATCH OVER</p>
+        <h2 class="screen-title" id="result-title">SONUÇ</h2>
+        <div class="score-card">
+          <div class="score-row">
+            <span class="score-label">Raunt</span>
+            <span class="score-value" id="result-rounds">0 - 0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Rating Değişim</span>
+            <span class="score-value" id="result-delta">±0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Yeni Rating</span>
+            <span class="score-value score-value--soft" id="result-rating">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Rank</span>
+            <span class="score-value score-value--soft" id="result-rank">—</span>
+          </div>
+        </div>
+        <div class="actions actions--row">
+          <button type="button" id="btn-result-rematch" class="btn btn-primary">↻ Tekrar Dövüş</button>
+          <button type="button" id="btn-result-quit"  class="btn btn-ghost">Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== HUD ============== -->
+    <div id="hud-top" class="hud-top" hidden>
+      <div class="hud-side hud-side--left">
+        <div class="fighter-name" id="p1-name">P1</div>
+        <div class="hp-bar"><div class="hp-bar-fill" id="p1-hp"></div></div>
+        <div class="meter-bar"><div class="meter-bar-fill" id="p1-meter"></div></div>
+        <div class="rounds rounds--left" id="p1-rounds"></div>
+      </div>
+      <div class="hud-center">
+        <div class="round-timer" id="round-timer">99</div>
+      </div>
+      <div class="hud-side hud-side--right">
+        <div class="fighter-name" id="p2-name">CPU</div>
+        <div class="hp-bar hp-bar--right"><div class="hp-bar-fill" id="p2-hp"></div></div>
+        <div class="meter-bar meter-bar--right"><div class="meter-bar-fill" id="p2-meter"></div></div>
+        <div class="rounds rounds--right" id="p2-rounds"></div>
+      </div>
+    </div>
+
+    <div id="hud-actions" class="hud-actions" hidden>
+      <button type="button" id="btn-mute" class="hud-btn" aria-label="Sesi aç/kapa" aria-pressed="false">
+        <span aria-hidden="true" data-on>♪</span>
+        <span aria-hidden="true" data-off hidden>✕</span>
+      </button>
+      <button type="button" id="btn-pause" class="hud-btn" aria-label="Duraklat">II</button>
+    </div>
+
+    <!-- Round announce -->
+    <div id="announce" class="announce" hidden>
+      <span id="announce-text">ROUND 1</span>
+    </div>
+
+    <!-- ============== MOBILE CONTROLS ============== -->
+    <div id="mctrls" class="mctrls" hidden>
+      <div class="mctrls-side mctrls-side--left">
+        <button type="button" class="mbtn" id="mb-left"  aria-label="Sol">◀</button>
+        <button type="button" class="mbtn" id="mb-right" aria-label="Sağ">▶</button>
+        <button type="button" class="mbtn mbtn--jump" id="mb-jump" aria-label="Zıpla">▲</button>
+      </div>
+      <div class="mctrls-side mctrls-side--right">
+        <button type="button" class="mbtn mbtn--block" id="mb-block" aria-label="Blok">⛊</button>
+        <button type="button" class="mbtn mbtn--light" id="mb-light" aria-label="Hafif">L</button>
+        <button type="button" class="mbtn mbtn--heavy" id="mb-heavy" aria-label="Ağır">H</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="game.js" defer></script>
+  <script>
+    (function() {
+      function hexToRgba(hex, a) {
+        hex = hex.replace('#','');
+        var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      }
+      function applyTheme(d) {
+        var s = document.documentElement.style;
+        if (d.accent)  { s.setProperty('--accent',  d.accent);  s.setProperty('--accent-soft',  hexToRgba(d.accent, 0.18)); }
+        if (d.accent2) { s.setProperty('--accent-2',d.accent2); s.setProperty('--accent-2-soft',hexToRgba(d.accent2, 0.18)); }
+      }
+      function applySettings(s) {
+        window.__fsSettings = s;
+        if (typeof s.mute === 'boolean') {
+          var btn = document.getElementById('btn-mute');
+          if (btn) {
+            var currently = btn.getAttribute('aria-pressed') === 'true';
+            if (s.mute !== currently) btn.click();
+          }
+        }
+        if (s.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        else document.documentElement.classList.remove('reduce-motion');
+      }
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'fs-theme')    applyTheme(e.data);
+        if (e.data.type === 'fs-settings') applySettings(e.data);
+      });
+      if (window.parent !== window) {
+        try { window.parent.postMessage({ type: 'fs-theme-request' }, '*'); } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+</html>

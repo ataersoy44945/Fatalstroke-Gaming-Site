@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07070d" />
+  <title>PIXEL SIEGE — FATALSTROKE</title>
+  <meta name="description" content="Neon piksel tower defense — FATALSTROKE." />
+
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%2307070d'/><rect x='14' y='14' width='12' height='12' fill='%2322d3ee'/><rect x='38' y='14' width='12' height='12' fill='%23b537f2'/><rect x='14' y='38' width='12' height='12' fill='%23b537f2'/><rect x='38' y='38' width='12' height='12' fill='%2322d3ee'/></svg>" />
+
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body>
+
+  <main id="stage" aria-label="Pixel Siege oyun alanı">
+
+    <canvas id="game" width="540" height="960" aria-hidden="true"></canvas>
+
+    <!-- ==================== TITLE EKRANI ==================== -->
+    <section id="screen-title" class="overlay">
+      <div class="overlay-inner">
+        <p class="eyebrow">FATALSTROKE PRESENTS</p>
+        <h1 class="game-title">
+          <span class="game-title-line">PIXEL</span>
+          <span class="game-title-line game-title-line--accent">SIEGE</span>
+        </h1>
+        <p class="game-tagline">Neon Tower Defense</p>
+
+        <div class="actions">
+          <button type="button" id="btn-start" class="btn btn-primary">▶ Başla</button>
+        </div>
+
+        <ul class="howto" aria-label="Nasıl oynanır">
+          <li><strong>Amaç:</strong> Düşmanları üsse ulaşmadan durdur.</li>
+          <li><strong>Kule diz:</strong> Alttan bir kule seç, sonra boş bir kareye dokun.</li>
+          <li><strong>Yükselt / sat:</strong> Mevcut bir kuleye dokun, alttan eylemi seç.</li>
+          <li><strong>Dalgalar:</strong> Hazır olduğunda <em>Sonraki Dalga</em>'ya bas.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== PAUSE EKRANI ==================== -->
+    <section id="screen-pause" class="overlay overlay--dim" hidden>
+      <div class="overlay-inner">
+        <h2 class="screen-title">DURAKLATILDI</h2>
+        <div class="actions">
+          <button type="button" id="btn-resume" class="btn btn-primary">▶ Devam</button>
+          <button type="button" id="btn-pause-quit" class="btn btn-ghost">Çıkış</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== KAZANDIN / CHECKPOINT ==================== -->
+    <section id="screen-won" class="overlay" hidden>
+      <div class="overlay-inner">
+        <p class="eyebrow eyebrow--win" id="won-eyebrow">// SIEGE BROKEN</p>
+        <h2 class="screen-title" id="won-title">KAZANDIN</h2>
+        <p class="won-subtitle" id="won-subtitle" hidden>
+          İlk 10 dalgayı temizledin. Daha zor dalgalara geçmek ister misin?
+        </p>
+        <div class="score-card">
+          <div class="score-row">
+            <span class="score-label">Kalan Can</span>
+            <span class="score-value" id="won-lives">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Skor</span>
+            <span class="score-value" id="won-score">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">En İyi Dalga</span>
+            <span class="score-value score-value--soft" id="won-best">0</span>
+          </div>
+          <div id="won-newbest" class="newbest" hidden>★ En iyi sonuç!</div>
+        </div>
+        <div class="actions actions--row">
+          <button type="button" id="btn-won-continue" class="btn btn-primary" hidden>▶ Daha Zor Dalgalar</button>
+          <button type="button" id="btn-won-restart"  class="btn btn-primary">↻ Tekrar Oyna</button>
+          <button type="button" id="btn-won-quit"     class="btn btn-ghost">Çıkış</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== KAYBETTIN ==================== -->
+    <section id="screen-lost" class="overlay" hidden>
+      <div class="overlay-inner">
+        <p class="eyebrow eyebrow--danger">// BASE OVERRUN</p>
+        <h2 class="screen-title">KAYBETTIN</h2>
+        <div class="score-card">
+          <div class="score-row">
+            <span class="score-label">Ulaştığın Dalga</span>
+            <span class="score-value" id="lost-wave">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Skor</span>
+            <span class="score-value" id="lost-score">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">En İyi Dalga</span>
+            <span class="score-value score-value--soft" id="lost-best">0</span>
+          </div>
+          <div id="lost-newbest" class="newbest" hidden>★ Yeni rekor!</div>
+        </div>
+        <div class="actions actions--row">
+          <button type="button" id="btn-lost-restart" class="btn btn-primary">↻ Tekrar Oyna</button>
+          <button type="button" id="btn-lost-quit"    class="btn btn-ghost">Çıkış</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== HUD ÜST ÇUBUK ==================== -->
+    <div id="hud-top" class="hud-top" hidden>
+      <div class="hud-stats">
+        <span class="stat" aria-label="Para">
+          <span class="stat-icon" aria-hidden="true">$</span>
+          <span class="stat-value" id="stat-money">0</span>
+        </span>
+        <span class="stat" aria-label="Can">
+          <span class="stat-icon stat-icon--heart" aria-hidden="true">♥</span>
+          <span class="stat-value" id="stat-lives">0</span>
+        </span>
+        <span class="stat" aria-label="Dalga">
+          <span class="stat-icon" aria-hidden="true">⌖</span>
+          <span class="stat-value">
+            <span id="stat-wave">0</span><span class="stat-sub">/<span id="stat-wave-max">0</span></span>
+          </span>
+        </span>
+      </div>
+      <div class="hud-actions">
+        <button type="button" id="btn-speed" class="hud-btn" aria-label="Oyun hızı" title="Oyun hızı (1x/2x/3x)">1×</button>
+        <button type="button" id="btn-mute" class="hud-btn" aria-label="Sesi aç/kapa" aria-pressed="false">
+          <span aria-hidden="true" data-on>♪</span>
+          <span aria-hidden="true" data-off hidden>✕</span>
+        </button>
+        <button type="button" id="btn-pause" class="hud-btn" aria-label="Duraklat">
+          <span aria-hidden="true">II</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== ALT PANEL (build / kontekst) ==================== -->
+    <div id="hud-bottom" class="hud-bottom" hidden>
+      <!-- Sonraki dalga butonu — dalga aktif değilken görünür -->
+      <button type="button" id="btn-next-wave" class="next-wave" hidden>
+        <span class="next-wave-label">Sonraki Dalga</span>
+        <span class="next-wave-sub" id="next-wave-sub">Dalga 1 başlamak için bas</span>
+      </button>
+
+      <!-- Kule build butonları — JS dolduruyor (TOWERS'tan) -->
+      <div id="build-panel" class="build-panel" role="toolbar" aria-label="Kule paleti"></div>
+
+      <!-- Bir kule seçilince (var olan) çıkan kontekst menü -->
+      <div id="ctx-panel" class="ctx-panel" hidden>
+        <div class="ctx-info">
+          <div class="ctx-name" id="ctx-name">—</div>
+          <div class="ctx-stats" id="ctx-stats"></div>
+        </div>
+        <div class="ctx-actions">
+          <button type="button" id="btn-upgrade" class="ctx-btn ctx-btn--up">
+            <span class="ctx-btn-label">Yükselt</span>
+            <span class="ctx-btn-cost" id="upgrade-cost">—</span>
+          </button>
+          <button type="button" id="btn-move" class="ctx-btn ctx-btn--move">
+            <span class="ctx-btn-label">Taşı</span>
+            <span class="ctx-btn-cost" id="move-cost">—</span>
+          </button>
+          <button type="button" id="btn-repair" class="ctx-btn ctx-btn--repair" hidden>
+            <span class="ctx-btn-label">Tamir</span>
+            <span class="ctx-btn-cost" id="repair-cost">—</span>
+          </button>
+          <button type="button" id="btn-sell" class="ctx-btn ctx-btn--sell">
+            <span class="ctx-btn-label">Sat</span>
+            <span class="ctx-btn-cost" id="sell-value">—</span>
+          </button>
+          <button type="button" id="btn-ctx-close" class="ctx-btn ctx-btn--x" aria-label="Kapat">✕</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="game.js" defer></script>
+  <script>
+    /* Tema + ayar senkronizasyonu — parent (ana site) iframe'e iletir */
+    (function() {
+      function hexToRgba(hex, a) {
+        hex = hex.replace('#','');
+        var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      }
+      function applyTheme(d) {
+        var s = document.documentElement.style;
+        if (d.accent)  { s.setProperty('--accent',  d.accent);  s.setProperty('--accent-soft',  hexToRgba(d.accent, 0.18)); }
+        if (d.accent2) { s.setProperty('--accent-2',d.accent2); s.setProperty('--accent-2-soft',hexToRgba(d.accent2, 0.18)); }
+      }
+      function applySettings(s) {
+        window.__fsSettings = s;
+        // Master mute: oyunun kendi mute butonuna basarak senkronla
+        if (typeof s.mute === 'boolean') {
+          var btn = document.getElementById('btn-mute');
+          if (btn) {
+            var currently = btn.getAttribute('aria-pressed') === 'true';
+            if (s.mute !== currently) btn.click();
+          }
+        }
+        if (s.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        else document.documentElement.classList.remove('reduce-motion');
+      }
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'fs-theme')    applyTheme(e.data);
+        if (e.data.type === 'fs-settings') applySettings(e.data);
+      });
+      if (window.parent !== window) {
+        try { window.parent.postMessage({ type: 'fs-theme-request' }, '*'); } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+</html>

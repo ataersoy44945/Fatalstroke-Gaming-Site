@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07070d" />
+  <title>NEON DRIFT — FATALSTROKE</title>
+  <meta name="description" content="Synthwave temalı endless arcade — FATALSTROKE." />
+
+  <!-- Inline SVG favicon — ek istek yok, offline -->
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%2307070d'/><path d='M20 50 L32 14 L44 50 M24 38 L40 38' fill='none' stroke='%2322d3ee' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/></svg>" />
+
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body>
+
+  <main id="stage" aria-label="Neon Drift oyun alanı">
+
+    <!-- Oyun canvas'ı (hep DOM'da, durumdan bağımsız) -->
+    <canvas id="game" width="540" height="960" aria-hidden="true"></canvas>
+
+    <!-- ==================== HUD (sadece oyun sırasında görünür) ==================== -->
+    <div id="hud" class="hud" hidden>
+      <div class="hud-left">
+        <div class="hud-block">
+          <span class="hud-label">SCORE</span>
+          <span class="hud-value" id="hud-score">0</span>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">HIGH</span>
+          <span class="hud-value hud-value--soft" id="hud-high">0</span>
+        </div>
+      </div>
+      <div class="hud-right">
+        <button type="button" id="btn-mute" class="hud-btn" aria-label="Sesi aç/kapa" aria-pressed="false">
+          <span aria-hidden="true" data-on>♪</span>
+          <span aria-hidden="true" data-off hidden>✕</span>
+        </button>
+        <button type="button" id="btn-pause" class="hud-btn" aria-label="Duraklat">
+          <span aria-hidden="true">II</span>
+        </button>
+      </div>
+      <div class="hud-speed">
+        <span class="hud-label">SPEED</span>
+        <div class="speed-bar" aria-hidden="true"><div id="speed-fill" class="speed-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- ==================== TITLE EKRANI ==================== -->
+    <section id="screen-title" class="overlay">
+      <div class="overlay-inner">
+        <p class="eyebrow">FATALSTROKE PRESENTS</p>
+        <h1 class="game-title">
+          <span class="game-title-line">NEON</span>
+          <span class="game-title-line game-title-line--accent">DRIFT</span>
+        </h1>
+        <p class="game-tagline">Synthwave Endless Arcade</p>
+
+        <div class="actions">
+          <button type="button" id="btn-start" class="btn btn-primary">▶ Başla</button>
+        </div>
+
+        <ul class="controls-hint" aria-label="Kontroller">
+          <li><kbd>←</kbd> <kbd>→</kbd> <span>veya</span> <kbd>A</kbd> <kbd>D</kbd> <span>— şerit değiştir</span></li>
+          <li><kbd>Space</kbd> <span>— başlat / tekrar</span></li>
+          <li><kbd>P</kbd> <span>— duraklat</span> · <kbd>M</kbd> <span>— ses</span></li>
+          <li class="controls-hint-touch"><span>📱 Ekranın sol/sağ yarısına dokun</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== ARAÇ SEÇİM EKRANI ==================== -->
+    <section id="screen-select" class="overlay" hidden>
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow">// SELECT YOUR RIDE</p>
+        <h2 class="screen-title">ARAÇ SEÇ</h2>
+
+        <!-- Araç kartları JS'te VEHICLES dizisinden üretilir -->
+        <div id="vehicle-grid" class="vehicle-grid" role="radiogroup" aria-label="Araç seçimi"></div>
+
+        <div class="actions actions--row">
+          <button type="button" id="btn-back" class="btn btn-ghost">← Geri</button>
+          <button type="button" id="btn-launch" class="btn btn-primary">▶ Yarışa Başla</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAUSE EKRANI ==================== -->
+    <section id="screen-pause" class="overlay overlay--dim" hidden>
+      <div class="overlay-inner">
+        <h2 class="screen-title">DURAKLATILDI</h2>
+        <div class="actions">
+          <button type="button" id="btn-resume" class="btn btn-primary">▶ Devam</button>
+          <button type="button" id="btn-pause-quit" class="btn btn-ghost">Çıkış</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== GAME OVER EKRANI ==================== -->
+    <section id="screen-gameover" class="overlay" hidden>
+      <div class="overlay-inner">
+        <p class="eyebrow eyebrow--danger">// SYSTEM FAILURE</p>
+        <h2 class="screen-title">GAME OVER</h2>
+
+        <div class="score-card">
+          <div class="score-row">
+            <span class="score-label">Skor</span>
+            <span class="score-value" id="go-score">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">En Yüksek</span>
+            <span class="score-value score-value--soft" id="go-high">0</span>
+          </div>
+          <div id="go-newbest" class="newbest" hidden>★ Yeni rekor!</div>
+        </div>
+
+        <div class="actions actions--row">
+          <button type="button" id="btn-restart"   class="btn btn-primary">↻ Tekrar</button>
+          <button type="button" id="btn-changecar" class="btn btn-ghost">Araç Değiştir</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="game.js" defer></script>
+  <script>
+    (function() {
+      function hexToRgba(hex, a) {
+        hex = hex.replace('#','');
+        var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      }
+      function applyTheme(d) {
+        var s = document.documentElement.style;
+        if (d.accent)  { s.setProperty('--accent',  d.accent);  s.setProperty('--accent-soft',  hexToRgba(d.accent, 0.18)); }
+        if (d.accent2) { s.setProperty('--accent-2',d.accent2); s.setProperty('--accent-2-soft',hexToRgba(d.accent2, 0.18)); }
+      }
+      function applySettings(s) {
+        window.__fsSettings = s;
+        if (typeof s.mute === 'boolean') {
+          var btn = document.getElementById('btn-mute');
+          if (btn) {
+            var currently = btn.getAttribute('aria-pressed') === 'true';
+            if (s.mute !== currently) btn.click();
+          }
+        }
+        if (s.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        else document.documentElement.classList.remove('reduce-motion');
+      }
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'fs-theme')    applyTheme(e.data);
+        if (e.data.type === 'fs-settings') applySettings(e.data);
+      });
+      if (window.parent !== window) {
+        try { window.parent.postMessage({ type: 'fs-theme-request' }, '*'); } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+</html>

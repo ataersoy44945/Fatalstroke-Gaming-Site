@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07070d" />
+
+  <title>FATALSTROKE — Bağımsız Oyun Stüdyosu</title>
+  <meta name="description"
+        content="FATALSTROKE — bağımsız oyun geliştirici. Neon Drift, Voidbreaker, Pixel Siege, Echo Protocol ve Ironclad Arena oyunlarının resmi tanıtım sayfası." />
+
+  <!-- Open Graph / sosyal paylaşım -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FATALSTROKE — Bağımsız Oyun Stüdyosu" />
+  <meta property="og:description"
+        content="Neon dolu arcade'lerden roguelike zindanlara — FATALSTROKE'un tüm oyunlarını tek bir yerden keşfet." />
+  <meta property="og:site_name" content="FATALSTROKE" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- SVG favicon (inline, ek istek yok) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%2307070d'/><path d='M14 50 L26 14 L34 32 L50 14 L40 50 L32 36 Z' fill='none' stroke='%23b537f2' stroke-width='3' stroke-linejoin='round'/><path d='M14 50 L26 14 L34 32 L50 14' fill='none' stroke='%2322d3ee' stroke-width='1.5' stroke-linejoin='round' opacity='0.8'/></svg>" />
+
+  <!-- Fontlar: preconnect + display swap (FOIT yok) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Arka plan dekorları (sabit, performans dostu) -->
+  <div class="bg-grid"   aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--purple" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--cyan"   aria-hidden="true"></div>
+  <div class="bg-noise"  aria-hidden="true"></div>
+
+  <a class="skip-link" href="#games">İçeriğe geç</a>
+
+  <!-- ============================ NAV ============================ -->
+  <header class="site-nav" role="banner">
+    <div class="wrap nav-inner">
+      <a href="#top" class="brand" aria-label="FATALSTROKE ana sayfa">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M14 50 L26 14 L34 32 L50 14 L40 50 L32 36 Z"
+                fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-text">FATALSTROKE</span>
+      </a>
+      <nav aria-label="Birincil">
+        <ul class="nav-links">
+          <li><a href="#games">Oyunlar</a></li>
+          <li><a href="#stats">İstatistikler</a></li>
+          <li><a href="#achievements">Başarımlar</a></li>
+          <li><a href="#rank">Rank Tracker</a></li>
+          <li><a href="#about">Hakkında</a></li>
+        </ul>
+      </nav>
+
+      <!-- Sağ üst aksiyon grubu: Ayarlar + Tema -->
+      <div class="nav-actions">
+      <button type="button" id="settings-toggle" class="theme-toggle settings-toggle"
+              aria-label="Ayarlar" title="Ayarlar">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+
+      <!-- Tema switcher -->
+      <div class="theme-switch">
+        <button type="button" id="theme-toggle" class="theme-toggle"
+                aria-label="Tema rengi seç" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="8" cy="10" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="16" cy="10" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="9" cy="15" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="15" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+        <div id="theme-menu" class="theme-menu" role="menu" hidden>
+          <button type="button" class="theme-swatch" data-theme="default"
+                  style="--swatch-a:#b537f2;--swatch-b:#22d3ee"
+                  aria-label="Neon — mor ve cyan (varsayılan)" role="menuitem"></button>
+          <button type="button" class="theme-swatch" data-theme="ember"
+                  style="--swatch-a:#ff7a2b;--swatch-b:#f5c542"
+                  aria-label="Ember — turuncu ve sarı" role="menuitem"></button>
+          <button type="button" class="theme-swatch" data-theme="forest"
+                  style="--swatch-a:#5aff9c;--swatch-b:#a8ff36"
+                  aria-label="Forest — yeşil ve lime" role="menuitem"></button>
+          <button type="button" class="theme-swatch" data-theme="ice"
+                  style="--swatch-a:#5a8cff;--swatch-b:#22d3ee"
+                  aria-label="Ice — mavi ve cyan" role="menuitem"></button>
+          <button type="button" class="theme-swatch" data-theme="rose"
+                  style="--swatch-a:#ff3e8a;--swatch-b:#ff9ec4"
+                  aria-label="Rose — pembe ve magenta" role="menuitem"></button>
+          <button type="button" class="theme-swatch" data-theme="toxic"
+                  style="--swatch-a:#c8ff00;--swatch-b:#00ffd5"
+                  aria-label="Toxic — lime ve aqua" role="menuitem"></button>
+        </div>
+      </div>
+      </div><!-- /nav-actions -->
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap hero-inner">
+
+        <div class="hero-meta">
+          <span class="kicker">
+            <span class="kicker-dot"></span>
+            Bağımsız Geliştirici · Est. 2021
+          </span>
+
+          <h1 id="hero-title" class="hero-title">
+            <span class="hero-title-line">GAME ON.</span>
+            <span class="hero-title-line hero-title-line--accent" data-text="ALWAYS.">ALWAYS.</span>
+          </h1>
+
+          <p class="hero-lede">
+            FATALSTROKE; arcade refleks, roguelike kaos ve rekabetçi PvP'yi tek
+            bir geliştirici imzası altında buluşturuyor. Aşağıda beş tamamlanmış
+            projeyi ve <strong>Ironclad Arena</strong>'nın canlı rank takip
+            aracını bulacaksın.
+          </p>
+
+          <div class="hero-cta">
+            <a href="#games" class="btn btn-primary">
+              <span>Oyunları Keşfet</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true" class="btn-icon"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#rank" class="btn btn-ghost">Rank Tracker</a>
+          </div>
+
+          <dl class="hero-stats" aria-label="Stüdyo istatistikleri">
+            <div><dt>Çıkmış oyun</dt><dd>5</dd></div>
+            <div><dt>Tür</dt><dd>6+</dd></div>
+            <div><dt>Yıl</dt><dd>5</dd></div>
+          </dl>
+        </div>
+
+        <!-- Asimetrik dekoratif panel (mobilde gizli) -->
+        <div class="hero-panel" aria-hidden="true">
+          <div class="hero-panel-frame">
+            <div class="hero-panel-grid"></div>
+            <div class="hero-panel-glyph">
+              <svg viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="hg1" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%"   stop-color="#b537f2"/>
+                    <stop offset="100%" stop-color="#22d3ee"/>
+                  </linearGradient>
+                </defs>
+                <path d="M40 170 L80 30 L110 110 L160 30 L130 170 L100 120 Z"
+                      fill="none" stroke="url(#hg1)" stroke-width="2.5" stroke-linejoin="round"/>
+                <circle cx="100" cy="100" r="80" fill="none" stroke="#22d3ee" stroke-width="0.6" opacity="0.4"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="#b537f2" stroke-width="0.6" opacity="0.4"/>
+              </svg>
+            </div>
+            <div class="hero-panel-tag hero-panel-tag--tl">SYS.READY</div>
+            <div class="hero-panel-tag hero-panel-tag--br">FS-//05</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="hero-marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>NEON DRIFT</span><span>·</span>
+          <span>VOIDBREAKER</span><span>·</span>
+          <span>PIXEL SIEGE</span><span>·</span>
+          <span>ECHO PROTOCOL</span><span>·</span>
+          <span>IRONCLAD ARENA</span><span>·</span>
+          <span>NEON DRIFT</span><span>·</span>
+          <span>VOIDBREAKER</span><span>·</span>
+          <span>PIXEL SIEGE</span><span>·</span>
+          <span>ECHO PROTOCOL</span><span>·</span>
+          <span>IRONCLAD ARENA</span><span>·</span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================ GAMES ============================ -->
+    <section id="games" class="section" aria-labelledby="games-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="section-eyebrow">// 01 · Katalog</span>
+          <h2 id="games-title" class="section-title">Oyunlar</h2>
+          <p class="section-sub">
+            Beş farklı tür, tek bir geliştirici. Her kart, oyunun detay sayfasını açar.
+          </p>
+        </header>
+
+        <!-- Kart grid'i app.js içinde dolduruluyor (data.js'den) -->
+        <div id="games-grid" class="games-grid"></div>
+      </div>
+    </section>
+
+
+    <!-- ============================ DAILY CHALLENGE ============================ -->
+    <section id="daily" class="section section--daily" aria-labelledby="daily-title">
+      <div class="wrap">
+        <div id="daily-card" class="daily-card reveal">
+          <div class="daily-head">
+            <span class="daily-eyebrow">// DAILY OPERATION</span>
+            <span class="daily-date" id="daily-date">—</span>
+          </div>
+          <h3 class="daily-title" id="daily-name">Günün Görevi</h3>
+          <p class="daily-desc" id="daily-desc">—</p>
+          <div class="daily-progress">
+            <div class="daily-progress-bar"><div class="daily-progress-fill" id="daily-fill"></div></div>
+            <span class="daily-progress-text" id="daily-progress-text">0/0</span>
+          </div>
+          <div class="daily-actions">
+            <button type="button" id="daily-play" class="btn btn-primary">▶ Görevi Aç</button>
+            <span class="daily-status" id="daily-status"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================ STATS HUB ============================ -->
+    <section id="stats" class="section section--stats" aria-labelledby="stats-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="section-eyebrow">// 02 · Profil</span>
+          <h2 id="stats-title" class="section-title">İstatistiklerim</h2>
+          <p class="section-sub">
+            Tüm oyunlarda kişisel rekorların. Bilgisayar değişirse veya tarayıcı verisini silersen sıfırlanır.
+          </p>
+        </header>
+        <div id="stats-grid" class="stats-grid"></div>
+      </div>
+    </section>
+
+
+    <!-- ============================ ACHIEVEMENTS ============================ -->
+    <section id="achievements" class="section section--achievements" aria-labelledby="ach-title">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <span class="section-eyebrow">// 03 · Başarımlar</span>
+          <h2 id="ach-title" class="section-title">Başarımlar</h2>
+          <p class="section-sub">
+            Oyunlar boyunca açtığın madalyalar. <span id="ach-progress">0 / 0</span> tamamlandı.
+          </p>
+        </header>
+        <div id="ach-grid" class="ach-grid"></div>
+      </div>
+    </section>
+
+
+    <!-- ============================ RANK TRACKER ============================ -->
+    <section id="rank" class="section section--rank" aria-labelledby="rank-title">
+      <div class="wrap">
+        <header class="rank-head reveal">
+          <div>
+            <span class="section-eyebrow section-eyebrow--cyan">// 04 · Ironclad Arena</span>
+            <h2 id="rank-title" class="section-title">Rank Tracker</h2>
+            <p class="section-sub">
+              <strong>Ironclad Arena</strong> sıralı maçların için resmi rütbe
+              hesaplayıcısı. Maç istatistiklerini gir, gerçek rütbe formülü ile
+              bulunduğun kademeyi ve bir sonraki rütbeye kalan rating'i gör.
+            </p>
+          </div>
+          <div class="rank-head-badge" aria-hidden="true">
+            <span>SEASON</span>
+            <strong>05</strong>
+          </div>
+        </header>
+
+        <div class="rank-app reveal">
+          <form id="rank-form" class="rank-form" novalidate>
+            <h3 class="rank-form-title">Maç Verileri</h3>
+
+            <div class="field">
+              <label for="f-wins">Kazanılan Maç</label>
+              <input id="f-wins" name="wins" type="number" inputmode="numeric"
+                     min="0" step="1" placeholder="0" />
+            </div>
+
+            <div class="field">
+              <label for="f-losses">Kaybedilen Maç</label>
+              <input id="f-losses" name="losses" type="number" inputmode="numeric"
+                     min="0" step="1" placeholder="0" />
+            </div>
+
+            <div class="field">
+              <label for="f-mmr">Toplam Puan (MMR)</label>
+              <input id="f-mmr" name="mmr" type="number" inputmode="numeric"
+                     min="0" step="1" placeholder="0" />
+            </div>
+
+            <div class="field">
+              <label for="f-streak">Kazanma Serisi <span class="field-hint">(opsiyonel)</span></label>
+              <input id="f-streak" name="streak" type="number" inputmode="numeric"
+                     min="0" step="1" placeholder="0" />
+            </div>
+
+            <div class="rank-form-actions">
+              <button type="submit" class="btn btn-primary btn-block">
+                Rütbeyi Hesapla
+              </button>
+              <button type="reset" class="btn btn-ghost btn-block">Sıfırla</button>
+            </div>
+
+            <p class="rank-form-note">
+              Formül <code>data.js</code> içinde — eşikleri ve ağırlıkları
+              dilediğin gibi değiştirebilirsin.
+            </p>
+          </form>
+
+          <!-- Sonuç paneli (JS doldurur) -->
+          <div id="rank-result" class="rank-result"
+               role="region" aria-live="polite" aria-label="Rütbe sonucu"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================ ABOUT ============================ -->
+    <section id="about" class="section section--about" aria-labelledby="about-title">
+      <div class="wrap about-grid">
+        <div class="reveal">
+          <span class="section-eyebrow">// 05 · Profil</span>
+          <h2 id="about-title" class="section-title">FATALSTROKE Hakkında</h2>
+          <p class="about-text">
+            FATALSTROKE, 2021'den beri faaliyet gösteren tek kişilik bir
+            bağımsız stüdyo. Hızlı tempolu arcade oyunları, derin sistemli
+            roguelike'lar ve rekabetçi PvP deneyimleri tasarlıyorum. Her proje
+            kendi kimliğine sahip; ama hepsinin ortak noktası temiz mekanikler
+            ve net bir görsel dil.
+          </p>
+          <p class="about-text">
+            Aşağıdan iletişime geçebilir, yeni oyunların duyurulduğu kanalları
+            takip edebilirsin.
+          </p>
+        </div>
+
+        <aside class="about-card reveal" aria-label="İletişim ve sosyal bağlantılar">
+          <h3 class="about-card-title">Bağlantılar</h3>
+          <ul class="social-list" role="list">
+            <li><span class="social-link social-link--soon" aria-label="Twitter — yakında">
+              <span class="social-icon" aria-hidden="true">𝕏</span>
+              <span class="social-meta">
+                <span class="social-name">Twitter</span>
+                <span class="social-handle">Yakında</span>
+              </span>
+            </span></li>
+            <li><span class="social-link social-link--soon" aria-label="Discord — yakında">
+              <span class="social-icon" aria-hidden="true">◆</span>
+              <span class="social-meta">
+                <span class="social-name">Discord</span>
+                <span class="social-handle">Yakında</span>
+              </span>
+            </span></li>
+            <li><span class="social-link social-link--soon" aria-label="YouTube — yakında">
+              <span class="social-icon" aria-hidden="true">▶</span>
+              <span class="social-meta">
+                <span class="social-name">YouTube</span>
+                <span class="social-handle">Yakında</span>
+              </span>
+            </span></li>
+            <li><span class="social-link social-link--soon" aria-label="E-posta — yakında">
+              <span class="social-icon" aria-hidden="true">@</span>
+              <span class="social-meta">
+                <span class="social-name">E-posta</span>
+                <span class="social-handle">Yakında</span>
+              </span>
+            </span></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================ FOOTER ============================ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="wrap footer-inner">
+      <span>© <span id="year"></span> FATALSTROKE. Tüm haklar saklıdır.</span>
+      <span class="footer-meta">Built with HTML · CSS · vanilla JS</span>
+    </div>
+  </footer>
+
+
+  <!-- ============================ PLAYABLE GAME OVERLAY (iframe) ============================ -->
+  <div id="play-overlay" class="play-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="play-overlay-title" hidden>
+    <div class="play-overlay-bar">
+      <span class="play-overlay-title" id="play-overlay-title"></span>
+      <div class="play-overlay-actions">
+        <a id="play-overlay-newtab" class="play-overlay-link"
+           href="#" target="_blank" rel="noopener" aria-label="Yeni sekmede aç">
+          <span aria-hidden="true">↗</span> Yeni sekme
+        </a>
+        <button type="button" id="play-overlay-close" class="play-overlay-close"
+                aria-label="Oyunu kapat">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <iframe id="play-overlay-frame" class="play-overlay-frame" src="about:blank"
+            title="Oynanabilir oyun" allow="autoplay; fullscreen"></iframe>
+  </div>
+
+
+  <!-- ============================ SETTINGS MODAL ============================ -->
+  <div id="settings-modal" class="modal" role="dialog" aria-modal="true"
+       aria-labelledby="settings-title" hidden>
+    <div class="modal-backdrop" data-close-settings></div>
+    <div class="modal-panel modal-panel--narrow" tabindex="-1">
+      <button type="button" class="modal-close" data-close-settings aria-label="Kapat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6l-12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="modal-body settings-body">
+        <span class="modal-eyebrow">// PREFERENCES</span>
+        <h2 id="settings-title" class="modal-title">Ayarlar</h2>
+        <p class="settings-note">Bu ayarlar tüm oyunlara uygulanır. Tarayıcına kalıcı kaydedilir.</p>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Master Sessiz</div>
+            <div class="settings-desc">Tüm oyun seslerini kısar.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="set-mute" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Efektleri Azalt</div>
+            <div class="settings-desc">Ekran sallama ve fazla parçacık efektini kapatır (performans dostu).</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="set-reduce" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Hareket Azaltma</div>
+            <div class="settings-desc">UI animasyonlarını minimuma indirir.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="set-reducemotion" />
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="settings-actions">
+          <button type="button" id="set-reset" class="btn btn-ghost">Varsayılana Dön</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================ GAME DETAIL MODAL ============================ -->
+  <div id="game-modal" class="modal" role="dialog" aria-modal="true"
+       aria-labelledby="modal-title" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel" tabindex="-1">
+      <button type="button" class="modal-close" data-close-modal aria-label="Kapat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6l-12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <div id="modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="data.js" defer></script>
+  <script src="app.js"  defer></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#07070d" />
+  <title>VOIDBREAKER — FATALSTROKE</title>
+  <meta name="description" content="Top-down neon roguelike nişancı — FATALSTROKE." />
+
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%2307070d'/><circle cx='32' cy='32' r='14' fill='none' stroke='%23b537f2' stroke-width='3'/><circle cx='32' cy='32' r='4' fill='%2322d3ee'/><line x1='32' y1='8' x2='32' y2='18' stroke='%2322d3ee' stroke-width='2'/><line x1='32' y1='46' x2='32' y2='56' stroke='%2322d3ee' stroke-width='2'/><line x1='8' y1='32' x2='18' y2='32' stroke='%2322d3ee' stroke-width='2'/><line x1='46' y1='32' x2='56' y2='32' stroke='%2322d3ee' stroke-width='2'/></svg>" />
+
+  <link rel="stylesheet" href="game.css" />
+</head>
+<body>
+
+  <main id="stage" aria-label="Voidbreaker oyun alanı">
+
+    <canvas id="game" width="800" height="500" aria-hidden="true"></canvas>
+
+    <!-- ============== TITLE ============== -->
+    <section id="screen-title" class="overlay">
+      <div class="overlay-inner">
+        <p class="eyebrow">FATALSTROKE PRESENTS</p>
+        <h1 class="game-title">
+          <span class="game-title-line">VOID</span>
+          <span class="game-title-line game-title-line--accent">BREAKER</span>
+        </h1>
+        <p class="game-tagline">Top-down · Roguelike · Nişancı</p>
+
+        <div class="actions">
+          <button type="button" id="btn-start" class="btn btn-primary">▶ Başla</button>
+          <button type="button" id="btn-perma" class="btn btn-ghost">⚙ Kalıcı Yükseltmeler</button>
+        </div>
+
+        <ul class="howto" aria-label="Nasıl oynanır">
+          <li><strong>Hareket:</strong> WASD veya ok tuşları</li>
+          <li><strong>Nişan:</strong> Fareni hareket ettir</li>
+          <li><strong>Ateş:</strong> Sol tıkla basılı tut</li>
+          <li><strong>Oda bitince:</strong> Sağdaki kapıdan geç → 3 yükseltmeden birini seç</li>
+          <li><strong>Mobil:</strong> Sol parmak hareket, sağ parmak nişan ve otomatik ateş</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============== PERMA UPGRADES ============== -->
+    <section id="screen-perma" class="overlay" hidden>
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow">// CORE UPGRADES</p>
+        <h2 class="screen-title">KALICI YÜKSELTMELER</h2>
+        <p class="perma-bal">
+          Mevcut coin: <strong id="perma-coin">0</strong>
+        </p>
+        <div id="perma-list" class="perma-list"></div>
+        <div class="actions actions--row">
+          <button type="button" id="btn-perma-back" class="btn btn-ghost">◀ Geri</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== PAUSE ============== -->
+    <section id="screen-pause" class="overlay overlay--dim" hidden>
+      <div class="overlay-inner">
+        <h2 class="screen-title">DURAKLATILDI</h2>
+        <div class="actions">
+          <button type="button" id="btn-resume" class="btn btn-primary">▶ Devam</button>
+          <button type="button" id="btn-pause-quit" class="btn btn-ghost">Ana Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== UPGRADE PICK ============== -->
+    <section id="screen-upgrade" class="overlay overlay--dim" hidden>
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow">// ROOM CLEARED</p>
+        <h2 class="screen-title" id="upgrade-title">YÜKSELTME SEÇ</h2>
+        <div id="upgrade-cards" class="upgrade-cards"></div>
+        <p class="upgrade-skip">
+          <button type="button" id="btn-skip-upgrade" class="btn-link">Geç (yükseltme alma)</button>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============== GAME OVER ============== -->
+    <section id="screen-dead" class="overlay" hidden>
+      <div class="overlay-inner overlay-inner--wide">
+        <p class="eyebrow eyebrow--danger">// BREACH FAILED</p>
+        <h2 class="screen-title">ÖLDÜN</h2>
+        <div class="score-card">
+          <div class="score-row">
+            <span class="score-label">Ulaştığın Derinlik</span>
+            <span class="score-value" id="dead-depth">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">Bu Run Coin</span>
+            <span class="score-value" id="dead-coin">0</span>
+          </div>
+          <div class="score-row">
+            <span class="score-label">En Derin</span>
+            <span class="score-value score-value--soft" id="dead-best">0</span>
+          </div>
+          <div id="dead-newbest" class="newbest" hidden>★ Yeni rekor!</div>
+        </div>
+        <div class="score-card" id="dead-stats-detail" style="margin-top:-4px"></div>
+        <div class="actions actions--row">
+          <button type="button" id="btn-dead-retry" class="btn btn-primary">↻ Tekrar Dene</button>
+          <button type="button" id="btn-dead-perma" class="btn btn-ghost">⚙ Yükseltmeler</button>
+          <button type="button" id="btn-dead-quit"  class="btn btn-ghost">Menü</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== VICTORY (boss defeated milestone) ============== -->
+    <!-- (kullanılmıyor şu an, boss defeated kendi UI'sini gösterir, ileride eklenebilir) -->
+
+    <!-- ============== HUD ============== -->
+    <div id="hud-top" class="hud-top" hidden>
+      <div class="hud-stats">
+        <span class="stat stat--hp" aria-label="Can">
+          <span class="stat-icon" aria-hidden="true">♥</span>
+          <span class="stat-bar"><span class="stat-bar-fill" id="hp-fill"></span></span>
+          <span class="stat-value" id="hp-text">0/0</span>
+        </span>
+        <span class="stat" aria-label="Derinlik">
+          <span class="stat-icon" aria-hidden="true">▼</span>
+          <span class="stat-value">D<span id="stat-depth">1</span></span>
+        </span>
+        <span class="stat" aria-label="Coin">
+          <span class="stat-icon" aria-hidden="true">◆</span>
+          <span class="stat-value" id="stat-coin">0</span>
+        </span>
+      </div>
+      <div class="hud-actions">
+        <button type="button" id="btn-mute" class="hud-btn" aria-label="Sesi aç/kapa" aria-pressed="false">
+          <span aria-hidden="true" data-on>♪</span>
+          <span aria-hidden="true" data-off hidden>✕</span>
+        </button>
+        <button type="button" id="btn-pause" class="hud-btn" aria-label="Duraklat">II</button>
+      </div>
+    </div>
+
+    <!-- Aktif buff ikonları (HUD altında küçük chip'ler) -->
+    <div id="hud-buffs" class="hud-buffs" hidden></div>
+
+    <!-- ============== MOBILE TWIN-STICK ============== -->
+    <div id="mctrls" class="mctrls" hidden>
+      <div class="stick-zone stick-zone--left" id="stick-left">
+        <div class="stick-base" id="stick-left-base"></div>
+        <div class="stick-knob" id="stick-left-knob"></div>
+      </div>
+      <div class="stick-zone stick-zone--right" id="stick-right">
+        <div class="stick-base" id="stick-right-base"></div>
+        <div class="stick-knob" id="stick-right-knob"></div>
+        <div class="stick-hint">NİŞAN + ATEŞ</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="game.js" defer></script>
+  <script>
+    (function() {
+      function hexToRgba(hex, a) {
+        hex = hex.replace('#','');
+        var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      }
+      function applyTheme(d) {
+        var s = document.documentElement.style;
+        if (d.accent)  { s.setProperty('--accent',  d.accent);  s.setProperty('--accent-soft',  hexToRgba(d.accent, 0.18)); }
+        if (d.accent2) { s.setProperty('--accent-2',d.accent2); s.setProperty('--accent-2-soft',hexToRgba(d.accent2, 0.18)); }
+      }
+      function applySettings(s) {
+        window.__fsSettings = s;
+        if (typeof s.mute === 'boolean') {
+          var btn = document.getElementById('btn-mute');
+          if (btn) {
+            var currently = btn.getAttribute('aria-pressed') === 'true';
+            if (s.mute !== currently) btn.click();
+          }
+        }
+        if (s.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        else document.documentElement.classList.remove('reduce-motion');
+      }
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'fs-theme')    applyTheme(e.data);
+        if (e.data.type === 'fs-settings') applySettings(e.data);
+      });
+      if (window.parent !== window) {
+        try { window.parent.postMessage({ type: 'fs-theme-request' }, '*'); } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+</html>
